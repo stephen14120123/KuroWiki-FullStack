@@ -1,0 +1,29 @@
+# === 后端 (Maven/Java) 过滤规则 ===
+**/target/
+**/*.class
+**/mvnw
+**/mvnw.cmd
+**/.mvn/
+**/target/
+
+# === 前端 (Node/Vue) 过滤规则 ===
+**/node_modules/
+**/dist/
+**/dist-ssr/
+**/*.local
+**/stats.json
+
+# === IDE & 系统垃圾 (关键) ===
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.DS_Store
+Thumbs.db
+build/
+bin/
+
+# === 数据库相关 ===
+**/*.log
+**/temp/

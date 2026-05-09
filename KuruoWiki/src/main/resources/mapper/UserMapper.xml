@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wiki.dao.UserMapper">
+
+    <!--
+        注意：Oracle 中 USER 是保留字，必须使用双引号包裹表名。
+        字段名使用下划线命名，MyBatis 驼峰映射自动转换。
+    -->
+
+    <!-- 登录校验：根据用户名和密码查询 -->
+    <select id="login" resultType="User">
+        SELECT id, username, password, nickname, role, create_time
+        FROM "USER"
+        WHERE username = #{username} AND password = #{password}
+    </select>
+
+    <!-- 获取所有用户列表（管理员用，不返回密码） -->
+    <select id="getAllUsers" resultType="User">
+        SELECT id, username, nickname, role, create_time
+        FROM "USER"
+        ORDER BY id DESC
+    </select>
+
+    <!-- 删除用户 -->
+    <delete id="deleteUser">
+        DELETE FROM "USER" WHERE id = #{id}
+    </delete>
+
+</mapper>

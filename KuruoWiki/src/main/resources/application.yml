@@ -1,0 +1,19 @@
+server:
+  port: 8088 # 保持 8088 端口不变
+  # 🚨 已经移除了 context-path，让项目直接运行在根目录 (localhost:8088/)
+
+spring:
+  datasource:
+    # 切换为 Oracle 驱动
+    driver-class-name: oracle.jdbc.OracleDriver
+    # 填入你刚才创建的 FREEPDB1 容器地址
+    url: jdbc:oracle:thin:@localhost:1521/FREEPDB1
+    # 填入你刚才在黑框里敲的新用户和密码
+    username: kuro
+    password: kuro123
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.wiki.entity

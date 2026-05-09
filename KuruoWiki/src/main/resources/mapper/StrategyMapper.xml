@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wiki.dao.StrategyMapper">
+
+    <select id="getStrategiesByCharId" resultType="StrategyGuide">
+        SELECT s.*, u.nickname as authorName
+        FROM strategy_guide s
+                 LEFT JOIN user u ON s.user_id = u.id
+        WHERE s.character_id = #{charId}
+        ORDER BY s.create_time DESC
+    </select>
+
+    <select id="getStrategiesByUserId" resultType="StrategyGuide">
+        SELECT s.*, u.nickname as authorName, c.name as characterName
+        FROM strategy_guide s
+                 LEFT JOIN user u ON s.user_id = u.id
+                 LEFT JOIN character_info c ON s.character_id = c.id
+        WHERE s.user_id = #{userId}
+        ORDER BY s.create_time DESC
+    </select>
+
+    <select id="getAllStrategies" resultType="StrategyGuide">
+        SELECT s.*, u.nickname as authorName, c.name as characterName
+        FROM strategy_guide s
+                 LEFT JOIN user u ON s.user_id = u.id
+                 LEFT JOIN character_info c ON s.character_id = c.id
+        ORDER BY s.create_time DESC
+    </select>
+
+    <insert id="insertStrategy" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO strategy_guide (user_id, character_id, title, content)
+        VALUES (#{userId}, #{characterId}, #{title}, #{content})
+    </insert>
+
+    <select id="getById" resultType="StrategyGuide">
+        SELECT * FROM strategy_guide WHERE id = #{id}
+    </select>
+
+    <update id="updateStrategy">
+        UPDATE strategy_guide
+        SET title = #{title}, content = #{content}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteStrategy">
+        DELETE FROM strategy_guide WHERE id = #{id}
+    </delete>
+
+</mapper>
