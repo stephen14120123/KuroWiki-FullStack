@@ -7,6 +7,10 @@
         SELECT * FROM echo_info ORDER BY cost DESC, id ASC
     </select>
 
+    <select id="getEchoById" resultType="EchoInfo">
+        SELECT * FROM echo_info WHERE id = #{id}
+    </select>
+
     <insert id="insertEcho" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO echo_info (name, cost, sonata_effect, skill_desc, image_url)
         VALUES (#{name}, #{cost}, #{sonataEffect}, #{skillDesc}, #{imageUrl})

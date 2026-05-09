@@ -30,13 +30,14 @@ public class LoginInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        // 2. GET 请求到 /api/strategies 不需要登录（公开查看攻略）
-        if ("GET".equalsIgnoreCase(request.getMethod())
-                && request.getRequestURI().startsWith("/api/strategies")) {
+        // 2. 放行所有 GET 请求（公开查询接口无需登录）
+        if ("GET".equalsIgnoreCase(request.getMethod())) {
+            // 仍然尝试解析 Token（如果有的话），以便后续 AOP 能获取用户信息
+            extractTokenIfPresent(request);
             return true;
         }
 
-        // 3. 从请求头中提取 Token
+        // 3. 非 GET 请求（POST/PUT/DELETE）需要验证 Token
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith(BEARER_PREFIX)) {
             String token = authHeader.substring(BEARER_PREFIX.length());
@@ -61,6 +62,24 @@ public class LoginInterceptor implements HandlerInterceptor {
         // 7. 未携带 Token 或 Token 无效，返回 401
         sendUnauthorized(response, "终端验证失败，请登录后操作");
         return false;
+    }
+
+    /**
+     * 尝试从请求头中解析 Token 并设置用户属性（不强制要求）
+     */
+    private void extractTokenIfPresent(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith(BEARER_PREFIX)) {
+            String token = authHeader.substring(BEARER_PREFIX.length());
+            if (!JwtUtil.isTokenExpired(token)) {
+                Claims claims = JwtUtil.parseToken(token);
+                if (claims != null) {
+                    request.setAttribute("currentUserId", claims.get("userId", Integer.class));
+                    request.setAttribute("userRole", claims.get("role", Integer.class));
+                    request.setAttribute("username", claims.get("username", String.class));
+                }
+            }
+        }
     }
 
     /**

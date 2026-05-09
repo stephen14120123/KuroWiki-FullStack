@@ -19,15 +19,28 @@ public class EchoService {
         return echoMapper.getAllEchoes();
     }
 
-    public boolean saveEcho(EchoInfo echo) {
-        return echoMapper.insertEcho(echo) > 0;
+    public EchoInfo getEchoById(Integer id) {
+        return echoMapper.getEchoById(id);
     }
 
-    public boolean updateEcho(EchoInfo echo) {
-        return echoMapper.updateEcho(echo) > 0;
+    public void saveEcho(EchoInfo echo) {
+        int rows = echoMapper.insertEcho(echo);
+        if (rows == 0) {
+            throw new IllegalArgumentException("声骸添加失败");
+        }
     }
 
-    public boolean deleteEcho(Integer id) {
-        return echoMapper.deleteEcho(id) > 0;
+    public void updateEcho(EchoInfo echo) {
+        int rows = echoMapper.updateEcho(echo);
+        if (rows == 0) {
+            throw new IllegalArgumentException("声骸修改失败，声骸可能不存在");
+        }
+    }
+
+    public void deleteEcho(Integer id) {
+        int rows = echoMapper.deleteEcho(id);
+        if (rows == 0) {
+            throw new IllegalArgumentException("声骸删除失败，声骸可能不存在");
+        }
     }
 }

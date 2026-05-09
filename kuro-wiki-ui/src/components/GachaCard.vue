@@ -18,6 +18,7 @@
         v-if="item.image"
         :src="item.image"
         :alt="item.name"
+        loading="lazy"
         class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
       />
       <div v-else class="w-full h-full flex items-center justify-center text-gray-500 text-sm">

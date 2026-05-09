@@ -25,28 +25,16 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(loginInterceptor)
-                // ===== 需要登录才能访问的接口 =====
-                .addPathPatterns("/api/strategies/**")   // 攻略发布/编辑/删除
-                .addPathPatterns("/api/admin/**")        // 管理员后台
-                .addPathPatterns("/api/user/myStrategies") // 我的攻略
+                // ===== 拦截所有 /api/** 接口 =====
+                .addPathPatterns("/api/**")
 
-                // ===== 放行：登录与注册接口 =====
+                // ===== 放行：登录与用户公开接口 =====
                 .excludePathPatterns("/api/user/login")
                 .excludePathPatterns("/api/user/logout")
                 .excludePathPatterns("/api/user/info")
 
-                // ===== 放行：公开数据查询接口 =====
-                .excludePathPatterns("/api/characters")
-                .excludePathPatterns("/api/characters/**")
-                .excludePathPatterns("/api/weapons")
-                .excludePathPatterns("/api/weapons/**")
-                .excludePathPatterns("/api/echoes")
-                .excludePathPatterns("/api/echoes/**")
-                .excludePathPatterns("/api/weapon/list")
-                .excludePathPatterns("/api/echo/list")
-
-                // ===== 放行：静态资源 =====
-                .excludePathPatterns("/", "/*.html", "/css/**", "/js/**", "/images/**", "/favicon.ico");
+                // ===== 放行：Knife4j API 文档 =====
+                .excludePathPatterns("/doc.html", "/webjars/**", "/swagger-resources/**", "/v2/api-docs/**");
     }
 
     /**

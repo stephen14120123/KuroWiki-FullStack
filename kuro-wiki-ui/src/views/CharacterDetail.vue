@@ -1,132 +1,148 @@
 <template>
-  <div class="relative min-h-[calc(100vh-4rem)] p-6" @mousemove="onMouseMove">
-    <!-- 鼠标跟随光斑 -->
-    <div class="pointer-events-none fixed inset-0 z-0 transition-opacity duration-300" :style="spotStyle" />
-
-    <!-- 返回按钮 -->
-    <router-link to="/characters" class="relative z-10 inline-flex items-center gap-1 text-sm text-indigo-400 hover:text-indigo-300 transition-colors">
-      ← 返回角色列表
-    </router-link>
-
-    <!-- 加载骨架屏 -->
-    <div v-if="loading" class="relative z-10 mt-6 flex flex-col lg:flex-row gap-8">
-      <div class="w-full lg:w-80 shrink-0">
-        <el-skeleton animated class="skeleton-glow">
-          <template #template>
-            <el-skeleton-item variant="image" class="w-full aspect-[3/4] rounded-2xl" />
-          </template>
-        </el-skeleton>
-      </div>
-      <div class="flex-1 space-y-4">
-        <el-skeleton animated :rows="8" class="skeleton-glow" />
-      </div>
+  <div class="p-6 max-w-5xl mx-auto space-y-6">
+    <!-- 顶部导航 -->
+    <div class="flex items-center gap-3">
+      <el-button :icon="ArrowLeft" @click="router.back()" round>返回</el-button>
+      <h1 class="text-xl font-bold text-white">角色详情</h1>
     </div>
 
-    <!-- 主内容 -->
-    <div v-else-if="detail" class="relative z-10 mt-6 flex flex-col lg:flex-row gap-8">
+    <!-- 加载骨架 -->
+    <div v-if="loading" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <el-skeleton animated>
+        <template #template>
+          <el-skeleton-item variant="image" class="w-full aspect-[3/4] rounded-xl" />
+        </template>
+      </el-skeleton>
+      <el-skeleton animated :rows="8" />
+    </div>
+
+    <!-- 主体内容 -->
+    <div v-else-if="character" class="grid grid-cols-1 md:grid-cols-2 gap-8">
       <!-- 左侧：角色立绘 -->
-      <div class="w-full lg:w-80 shrink-0">
-        <div class="character-portrait sticky top-20 rounded-2xl overflow-hidden bg-gray-800/50 border border-gray-700/50">
-          <img
-            v-if="detail.image"
-            :src="detail.image"
-            :alt="detail.name"
-            class="w-full aspect-[3/4] object-cover"
-          />
-          <div v-else class="w-full aspect-[3/4] flex items-center justify-center text-gray-500">
-            No Image
-          </div>
-          <!-- 角色名称浮层 -->
-          <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-gray-950/90 to-transparent">
-            <h1 class="text-xl font-bold">{{ detail.name }}</h1>
-            <div class="mt-1 flex items-center gap-2">
-              <span class="text-amber-400 text-sm">
-                <span v-for="n in detail.rarity" :key="n">★</span>
-              </span>
-              <span class="text-xs text-gray-400">{{ detail.element }} · {{ detail.weaponType }}</span>
-            </div>
-          </div>
+      <div class="relative rounded-xl overflow-hidden bg-gray-800/50 border border-gray-700/50">
+        <img
+          v-if="character.imageUrl"
+          :src="character.imageUrl"
+          :alt="character.name"
+          class="w-full h-full object-cover"
+        />
+        <div v-else class="w-full aspect-[3/4] flex items-center justify-center text-gray-500">
+          暂无立绘
+        </div>
+        <!-- 星级角标 -->
+        <div class="absolute top-3 left-3 flex gap-0.5">
+          <span v-for="n in character.rarity" :key="n" class="text-amber-400 text-lg">★</span>
         </div>
       </div>
 
-      <!-- 右侧：信息面板 -->
-      <div class="flex-1 min-w-0">
-        <el-tabs class="detail-tabs" model-value="background">
-          <!-- 背景故事 -->
-          <el-tab-pane label="背景故事" name="background">
-            <div class="prose-content">
-              <p v-if="detail.background" class="text-gray-300 leading-relaxed whitespace-pre-line">
-                {{ detail.background }}
-              </p>
-              <p v-else class="text-gray-500 text-sm">暂无背景故事</p>
-            </div>
-          </el-tab-pane>
+      <!-- 右侧：角色信息 -->
+      <div class="space-y-6">
+        <!-- 基础信息 -->
+        <el-descriptions
+          title="基础信息"
+          :column="1"
+          border
+          class="character-desc"
+        >
+          <el-descriptions-item label="姓名">{{ character.name }}</el-descriptions-item>
+          <el-descriptions-item label="星级">
+            <span v-for="n in character.rarity" :key="n" class="text-amber-400">★</span>
+          </el-descriptions-item>
+          <el-descriptions-item label="共鸣属性">
+            <el-tag type="primary" effect="dark" size="small">{{ character.element }}</el-tag>
+          </el-descriptions-item>
+          <el-descriptions-item label="武器类型">{{ character.weaponType }}</el-descriptions-item>
+        </el-descriptions>
 
-          <!-- 技能信息 -->
-          <el-tab-pane label="技能" name="skills">
-            <div v-if="detail.skills?.length" class="space-y-4">
-              <div
-                v-for="skill in detail.skills"
-                :key="skill.name"
-                class="p-4 rounded-xl bg-gray-800/40 border border-gray-700/40"
-              >
-                <div class="flex items-center gap-2 mb-2">
-                  <span class="text-sm font-semibold text-white">{{ skill.name }}</span>
-                  <span class="text-xs px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300">{{ skill.type }}</span>
-                </div>
-                <p class="text-sm text-gray-400 leading-relaxed">{{ skill.description }}</p>
-              </div>
-            </div>
-            <p v-else class="text-gray-500 text-sm">暂无技能数据</p>
-          </el-tab-pane>
+        <!-- 数值面板 -->
+        <el-descriptions
+          v-if="hasStats"
+          title="基础数值"
+          :column="2"
+          border
+          class="character-desc"
+        >
+          <el-descriptions-item v-if="character.hp" label="生命值">{{ character.hp }}</el-descriptions-item>
+          <el-descriptions-item v-if="character.atk" label="攻击力">{{ character.atk }}</el-descriptions-item>
+          <el-descriptions-item v-if="character.def" label="防御力">{{ character.def }}</el-descriptions-item>
+          <el-descriptions-item v-if="character.crit" label="暴击率">{{ character.crit }}%</el-descriptions-item>
+          <el-descriptions-item v-if="character.energy" label="能量">{{ character.energy }}</el-descriptions-item>
+        </el-descriptions>
 
-          <!-- 养成建议 -->
-          <el-tab-pane label="养成建议" name="build">
-            <div class="prose-content">
-              <p v-if="detail.buildSuggestion" class="text-gray-300 leading-relaxed whitespace-pre-line">
-                {{ detail.buildSuggestion }}
-              </p>
-              <p v-else class="text-gray-500 text-sm">暂无养成建议</p>
+        <!-- 背景故事 -->
+        <div v-if="character.backstory" class="space-y-2">
+          <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">背景故事</h3>
+          <p class="text-sm text-gray-300 leading-relaxed">{{ character.backstory }}</p>
+        </div>
+
+        <!-- 技能信息 -->
+        <div v-if="parsedSkills.length" class="space-y-2">
+          <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">技能</h3>
+          <div class="space-y-2">
+            <div
+              v-for="(skill, idx) in parsedSkills"
+              :key="idx"
+              class="p-3 rounded-lg bg-gray-800/60 border border-gray-700/40"
+            >
+              <p class="text-sm font-medium text-indigo-300">{{ skill.name }}</p>
+              <p class="text-xs text-gray-400 mt-1">{{ skill.desc }}</p>
             </div>
-          </el-tab-pane>
-        </el-tabs>
+          </div>
+        </div>
+
+        <!-- 养成建议 -->
+        <div v-if="character.buildGuide" class="space-y-2">
+          <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">养成建议</h3>
+          <p class="text-sm text-gray-300 leading-relaxed whitespace-pre-line">{{ character.buildGuide }}</p>
+        </div>
       </div>
     </div>
 
     <!-- 错误状态 -->
-    <div v-else class="relative z-10 mt-6 text-center py-20">
-      <p class="text-gray-500">角色数据加载失败</p>
+    <div v-else class="flex flex-col items-center justify-center py-20 text-gray-500">
+      <p>未找到该角色信息</p>
+      <el-button class="mt-4" @click="router.back()">返回列表</el-button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import { ArrowLeft } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 import { fetchCharacterDetail } from '@/api/characters'
-import type { CharacterDetail } from '@/api/characters'
+import type { CharacterItem } from '@/api/characters'
 
 const route = useRoute()
+const router = useRouter()
+
 const loading = ref(true)
-const detail = ref<CharacterDetail | null>(null)
+const character = ref<CharacterItem | null>(null)
 
-// 鼠标光斑
-const mouseX = ref(0)
-const mouseY = ref(0)
+const hasStats = computed(() => {
+  if (!character.value) return false
+  const c = character.value
+  return c.hp || c.atk || c.def || c.crit || c.energy
+})
 
-function onMouseMove(e: MouseEvent) {
-  mouseX.value = e.clientX
-  mouseY.value = e.clientY
-}
-
-const spotStyle = computed(() => ({
-  background: `radial-gradient(600px circle at ${mouseX.value}px ${mouseY.value}px, rgba(99, 102, 241, 0.1), transparent 60%)`,
-}))
+const parsedSkills = computed(() => {
+  if (!character.value?.skills) return []
+  try {
+    const skills = JSON.parse(character.value.skills)
+    return Array.isArray(skills) ? skills : []
+  } catch {
+    return []
+  }
+})
 
 onMounted(async () => {
+  const id = route.params.id as string
   try {
-    const res = await fetchCharacterDetail(route.params.id as string) as any
-    detail.value = res.data ?? null
+    const res = await fetchCharacterDetail(id) as any
+    character.value = res.data ?? null
+  } catch (err: any) {
+    ElMessage.error(err?.message || '获取角色详情失败')
   } finally {
     loading.value = false
   }
@@ -134,38 +150,15 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-@reference "tailwindcss";
-
-/* 角色立绘呼吸动画 */
-.character-portrait {
-  animation: portrait-breathe 4s ease-in-out infinite;
+.character-desc :deep(.el-descriptions__title) {
+  color: #e5e7eb;
 }
-
-@keyframes portrait-breathe {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 0 20px rgba(99, 102, 241, 0.1);
-  }
-  50% {
-    transform: scale(1.01);
-    box-shadow: 0 0 40px rgba(99, 102, 241, 0.2);
-  }
+.character-desc :deep(.el-descriptions__label) {
+  color: #9ca3af;
+  background-color: rgba(31, 41, 55, 0.6);
 }
-
-/* Tabs 暗黑风格覆盖 */
-.detail-tabs :deep(.el-tabs__header) {
-  @apply border-b border-gray-700/50;
-}
-.detail-tabs :deep(.el-tabs__item) {
-  @apply text-gray-400 text-sm;
-}
-.detail-tabs :deep(.el-tabs__item.is-active) {
-  @apply text-indigo-400;
-}
-.detail-tabs :deep(.el-tabs__active-bar) {
-  @apply bg-indigo-400;
-}
-.detail-tabs :deep(.el-tabs__nav-wrap::after) {
-  @apply bg-transparent;
+.character-desc :deep(.el-descriptions__content) {
+  color: #f3f4f6;
+  background-color: rgba(17, 24, 39, 0.6);
 }
 </style>

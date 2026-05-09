@@ -9,6 +9,9 @@ public interface WeaponMapper {
     // 获取所有武器
     List<WeaponInfo> getAllWeapons();
 
+    // 根据 ID 获取单个武器
+    WeaponInfo getWeaponById(Integer id);
+
     // 新增武器
     int insertWeapon(WeaponInfo weapon);
 

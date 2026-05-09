@@ -7,6 +7,10 @@
         SELECT * FROM weapon_info ORDER BY rarity DESC, id ASC
     </select>
 
+    <select id="getWeaponById" resultType="WeaponInfo">
+        SELECT * FROM weapon_info WHERE id = #{id}
+    </select>
+
     <insert id="insertWeapon" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO weapon_info (name, rarity, weapon_type, base_atk, sub_stat_type, sub_stat_value, skill_name, skill_desc, image_url)
         VALUES (#{name}, #{rarity}, #{weaponType}, #{baseAtk}, #{subStatType}, #{subStatValue}, #{skillName}, #{skillDesc}, #{imageUrl})

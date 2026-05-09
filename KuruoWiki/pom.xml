@@ -23,6 +23,7 @@
         <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <jjwt.version>0.11.5</jjwt.version>
     </properties>
 
     <dependencies>
@@ -76,23 +77,30 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
-        <!-- 升级 JWT 依赖到现代版本 -->
+        <!-- JJWT（模块化三件套，版本统一管理） -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
-            <version>0.11.5</version>
+            <version>${jjwt.version}</version>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-impl</artifactId>
-            <version>0.11.5</version>
+            <version>${jjwt.version}</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
-            <version>0.11.5</version>
+            <version>${jjwt.version}</version>
             <scope>runtime</scope>
+        </dependency>
+
+        <!-- Knife4j API 文档（兼容 Spring Boot 2.7） -->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-openapi2-spring-boot-starter</artifactId>
+            <version>4.4.0</version>
         </dependency>
         <dependency>
             <groupId>javax.xml.bind</groupId>

@@ -9,6 +9,9 @@ public interface EchoMapper {
     // 获取所有声骸
     List<EchoInfo> getAllEchoes();
 
+    // 根据 ID 获取单个声骸
+    EchoInfo getEchoById(Integer id);
+
     // 新增声骸
     int insertEcho(EchoInfo echo);
 

@@ -18,40 +18,45 @@
       </li>
     </ul>
 
-    <!-- 右侧登录/用户按钮 -->
-    <div class="ml-auto">
-      <router-link
-        v-if="!isLoggedIn"
-        to="/login"
-        class="auth-btn"
-      >
-        登录
-      </router-link>
-      <button
-        v-else
-        class="auth-btn auth-btn--active"
-        @click="handleLogout"
-      >
-        个人中心
-      </button>
+    <!-- 右侧用户状态 -->
+    <div class="ml-auto flex items-center gap-3">
+      <template v-if="userStore.isLoggedIn">
+        <!-- 管理后台入口（仅管理员可见） -->
+        <router-link v-if="userStore.isAdmin" to="/admin" class="auth-btn">后台</router-link>
+        <!-- 用户信息 -->
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-indigo-500/30 border border-indigo-400/50 flex items-center justify-center text-xs text-indigo-300 font-bold">
+            {{ avatarText }}
+          </div>
+          <span class="text-sm text-gray-300">{{ userStore.userInfo?.nickname || userStore.userInfo?.username }}</span>
+        </div>
+        <!-- 退出按钮 -->
+        <button class="auth-btn" @click="handleLogout">退出</button>
+      </template>
+      <template v-else>
+        <router-link to="/login" class="auth-btn">登录</router-link>
+      </template>
     </div>
   </nav>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
+import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
-const isLoggedIn = ref(false)
+const userStore = useUserStore()
 
-onMounted(() => {
-  isLoggedIn.value = !!localStorage.getItem('token')
+const avatarText = computed(() => {
+  const name = userStore.userInfo?.nickname || userStore.userInfo?.username || ''
+  return name.charAt(0).toUpperCase()
 })
 
 function handleLogout() {
-  localStorage.removeItem('token')
-  isLoggedIn.value = false
+  userStore.logout()
+  ElMessage.success('已退出登录')
   router.push('/login')
 }
 
@@ -60,6 +65,7 @@ const menuItems = [
   { path: '/characters', label: '角色' },
   { path: '/weapons', label: '武器' },
   { path: '/echoes', label: '声骸' },
+  { path: '/strategies', label: '攻略' },
 ]
 </script>
 
@@ -76,10 +82,6 @@ const menuItems = [
 .auth-btn {
   @apply px-4 py-1.5 rounded-lg text-sm font-medium text-indigo-300 border border-indigo-500/40 bg-transparent transition-all duration-300 hover:text-white hover:border-indigo-400 hover:shadow-md hover:shadow-indigo-500/20;
   animation: auth-breathe 3s ease-in-out infinite;
-}
-
-.auth-btn--active {
-  @apply text-indigo-200 border-indigo-400/50;
 }
 
 @keyframes auth-breathe {

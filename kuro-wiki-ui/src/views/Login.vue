@@ -71,8 +71,10 @@ import { reactive, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { login } from '@/api/user'
+import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
+const userStore = useUserStore()
 
 const form = reactive({
   username: '',
@@ -106,11 +108,16 @@ async function handleLogin() {
   try {
     const res = await login({ username, password }) as any
     const token = res.data?.token
+    const user = res.data?.user
     if (token) {
-      localStorage.setItem('token', token)
+      userStore.setLogin(token, user)
       ElMessage.success('登录成功')
       router.push('/')
+    } else {
+      ElMessage.error(res.message || '登录失败，未获取到 Token')
     }
+  } catch (err: any) {
+    console.error('登录异常', err)
   } finally {
     submitting.value = false
   }

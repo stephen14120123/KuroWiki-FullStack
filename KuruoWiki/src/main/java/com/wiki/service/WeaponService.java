@@ -19,15 +19,28 @@ public class WeaponService {
         return weaponMapper.getAllWeapons();
     }
 
-    public boolean saveWeapon(WeaponInfo weapon) {
-        return weaponMapper.insertWeapon(weapon) > 0;
+    public WeaponInfo getWeaponById(Integer id) {
+        return weaponMapper.getWeaponById(id);
     }
 
-    public boolean updateWeapon(WeaponInfo weapon) {
-        return weaponMapper.updateWeapon(weapon) > 0;
+    public void saveWeapon(WeaponInfo weapon) {
+        int rows = weaponMapper.insertWeapon(weapon);
+        if (rows == 0) {
+            throw new IllegalArgumentException("武器添加失败");
+        }
     }
 
-    public boolean deleteWeapon(Integer id) {
-        return weaponMapper.deleteWeapon(id) > 0;
+    public void updateWeapon(WeaponInfo weapon) {
+        int rows = weaponMapper.updateWeapon(weapon);
+        if (rows == 0) {
+            throw new IllegalArgumentException("武器修改失败，武器可能不存在");
+        }
+    }
+
+    public void deleteWeapon(Integer id) {
+        int rows = weaponMapper.deleteWeapon(id);
+        if (rows == 0) {
+            throw new IllegalArgumentException("武器删除失败，武器可能不存在");
+        }
     }
 }

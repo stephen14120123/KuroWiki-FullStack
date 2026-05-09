@@ -39,7 +39,10 @@ public class UserController {
      * @return 包含 token 和 user 信息的响应
      */
     @PostMapping("/login")
-    public Result<Map<String, Object>> login(String username, String password) {
+    public Result<Map<String, Object>> login(@RequestBody Map<String, String> params) {
+        String username = params != null ? params.get("username") : null;
+        String password = params != null ? params.get("password") : null;
+
         // 参数校验
         if (username == null || username.trim().isEmpty()
                 || password == null || password.trim().isEmpty()) {

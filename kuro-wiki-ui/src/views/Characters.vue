@@ -25,7 +25,8 @@
       <GachaCard
         v-for="item in filteredList"
         :key="item.id"
-        :item="{ name: item.name, image: item.image, rarity: item.rarity, type: `${item.element} · ${item.weaponType}` }"
+        v-memo="[item.id, item.name, item.rarity, item.element, item.weaponType, item.imageUrl]"
+        :item="{ name: item.name, image: item.imageUrl, rarity: item.rarity, type: `${item.element} · ${item.weaponType}` }"
         :detail-link="`/character/${item.id}`"
       />
     </div>
@@ -39,6 +40,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
 import GachaCard from '@/components/GachaCard.vue'
 import FilterConsole from '@/components/FilterConsole.vue'
 import type { FilterState } from '@/components/FilterConsole.vue'
@@ -70,6 +72,8 @@ onMounted(async () => {
   try {
     const res = await fetchCharacters() as any
     characters.value = res.data ?? []
+  } catch (err: any) {
+    ElMessage.error(err?.message || '获取角色列表失败，请稍后重试')
   } finally {
     loading.value = false
   }

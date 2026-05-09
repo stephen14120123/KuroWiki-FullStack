@@ -3,20 +3,31 @@ package com.wiki.entity;
 import com.alibaba.excel.annotation.ExcelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 @Data
 public class CharacterInfo {
     @ExcelProperty("角色ID")
     private Integer id;
 
+    @NotBlank(message = "角色名称不能为空")
     @ExcelProperty("角色名")
     private String name;
 
+    @NotNull(message = "稀有度不能为空")
+    @Min(value = 4, message = "稀有度最低为4星")
+    @Max(value = 5, message = "稀有度最高为5星")
     @ExcelProperty("稀有度")
     private Integer rarity;
 
+    @NotBlank(message = "属性不能为空")
     @ExcelProperty("属性")
     private String element;
 
+    @NotBlank(message = "武器类型不能为空")
     @ExcelProperty("武器类型")
     private String weaponType;
 

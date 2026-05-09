@@ -1,45 +1,41 @@
 import request from '@/utils/request'
 
-export interface CharacterItem {
-  id: number
-  name: string
-  image?: string
-  rarity: number
-  element: string
-  weaponType: string
-}
-
+/** 通用响应结构 */
 export interface ApiResponse<T> {
   code: number
   data: T
   message: string
 }
 
-/** 获取角色列表 */
-export function fetchCharacters() {
-  return request.get<ApiResponse<CharacterItem[]>>('/characters/list')
-}
-
-/** 角色详情 */
-export interface CharacterDetail {
+/** 角色列表项（与后端 CharacterInfo 严格对应） */
+export interface CharacterItem {
   id: number
   name: string
-  image?: string
   rarity: number
   element: string
   weaponType: string
-  background?: string
-  skills?: SkillInfo[]
-  buildSuggestion?: string
+  description?: string
+  imageUrl?: string
+  hp?: number
+  atk?: number
+  def?: number
+  crit?: number
+  energy?: number
+  // 以下为详情扩展字段
+  backstory?: string
+  skills?: string
+  buildGuide?: string
 }
 
-export interface SkillInfo {
-  name: string
-  description: string
-  type: string
+/** 前端展示用的图片字段别名（兼容 GachaCard 的 image prop） */
+export type CharacterListItem = CharacterItem & { image?: string }
+
+/** 获取角色列表 */
+export function fetchCharacters() {
+  return request.get<ApiResponse<CharacterItem[]>>('/characters')
 }
 
 /** 获取角色详情 */
 export function fetchCharacterDetail(id: number | string) {
-  return request.get<ApiResponse<CharacterDetail>>(`/characters/info/${id}`)
+  return request.get<ApiResponse<CharacterItem>>(`/characters/${id}`)
 }
