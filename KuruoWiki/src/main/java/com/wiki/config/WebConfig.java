@@ -2,19 +2,12 @@ package com.wiki.config;
 
 import com.wiki.interceptor.LoginInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.*;
 
 /**
  * Web MVC 配置类
- * <p>
- * 注册登录拦截器，配置拦截与放行规则。
- * 原则：默认拦截需要鉴权的接口，显式放行公开接口和静态资源。
- * </p>
- *
- * @author KuroWiki
  */
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
@@ -22,27 +15,43 @@ public class WebConfig implements WebMvcConfigurer {
     @Autowired
     private LoginInterceptor loginInterceptor;
 
+    @Value("${kurowiki.upload.path}")
+    private String uploadPath;
+
+    @Value("${kurowiki.upload.url-prefix}")
+    private String urlPrefix;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(loginInterceptor)
-                // ===== 拦截所有 /api/** 接口 =====
                 .addPathPatterns("/api/**")
 
-                // ===== 放行：登录与用户公开接口 =====
+                // 放行：用户公开接口
                 .excludePathPatterns("/api/user/login")
+                .excludePathPatterns("/api/user/register")
                 .excludePathPatterns("/api/user/logout")
                 .excludePathPatterns("/api/user/info")
 
-                // ===== 放行：Knife4j API 文档 =====
+                // 放行：Knife4j API 文档
                 .excludePathPatterns("/doc.html", "/webjars/**", "/swagger-resources/**", "/v2/api-docs/**");
     }
 
     /**
-     * 跨域配置（支持 Vue 前端开发环境访问）
+     * 虚拟路径映射：将 /images/** 映射到本地磁盘目录
+     * 访问 http://localhost:8088/images/xxx.png 即可获取上传的图片
+     */
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler(urlPrefix + "**")
+                .addResourceLocations("file:" + uploadPath);
+    }
+
+    /**
+     * 跨域配置
      */
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**")
+        registry.addMapping("/**")
                 .allowedOriginPatterns("*")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")

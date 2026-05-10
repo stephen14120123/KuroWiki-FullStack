@@ -108,6 +108,27 @@ public class UserController {
     }
 
     /**
+     * 用户注册接口
+     */
+    @PostMapping("/register")
+    public Result<String> register(@RequestBody Map<String, String> params) {
+        String username = params != null ? params.get("username") : null;
+        String password = params != null ? params.get("password") : null;
+        String nickname = params != null ? params.get("nickname") : null;
+
+        if (username == null || username.trim().isEmpty()
+                || password == null || password.trim().isEmpty()) {
+            return Result.error("用户名和密码不能为空");
+        }
+        if (password.length() < 6) {
+            return Result.error("密码长度不能少于6位");
+        }
+
+        userService.register(username.trim(), password, nickname);
+        return Result.success("注册成功");
+    }
+
+    /**
      * 用户登出
      * <p>
      * JWT 是无状态的，服务端不维护会话。

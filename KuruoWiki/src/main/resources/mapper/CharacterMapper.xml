@@ -9,6 +9,26 @@
         SELECT * FROM character_info ORDER BY rarity DESC, id ASC
     </select>
 
+    <!-- 多条件动态查询 -->
+    <select id="queryByCondition" resultType="CharacterInfo" parameterType="com.wiki.dto.CharacterQueryDTO">
+        SELECT * FROM character_info
+        <where>
+            <if test="name != null and name != ''">
+                AND name LIKE '%' || #{name} || '%'
+            </if>
+            <if test="element != null and element != ''">
+                AND element = #{element}
+            </if>
+            <if test="weaponType != null and weaponType != ''">
+                AND weapon_type = #{weaponType}
+            </if>
+            <if test="rarity != null">
+                AND rarity = #{rarity}
+            </if>
+        </where>
+        ORDER BY rarity DESC, id ASC
+    </select>
+
     <select id="getCharacterById" resultType="CharacterInfo">
         SELECT * FROM character_info WHERE id = #{id}
     </select>
@@ -16,6 +36,15 @@
     <insert id="insertCharacter" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO character_info (name, rarity, element, weapon_type, description, image_url, hp, atk, def, crit, energy)
         VALUES (#{name}, #{rarity}, #{element}, #{weaponType}, #{description}, #{imageUrl}, #{hp}, #{atk}, #{def}, #{crit}, #{energy})
+    </insert>
+
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT ALL
+        <foreach collection="list" item="item">
+            INTO character_info (name, rarity, element, weapon_type, description, image_url, hp, atk, def, crit, energy)
+            VALUES (#{item.name}, #{item.rarity}, #{item.element}, #{item.weaponType}, #{item.description}, #{item.imageUrl}, #{item.hp}, #{item.atk}, #{item.def}, #{item.crit}, #{item.energy})
+        </foreach>
+        SELECT 1 FROM DUAL
     </insert>
 
     <update id="updateCharacter">

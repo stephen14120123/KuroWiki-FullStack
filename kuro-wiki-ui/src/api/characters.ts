@@ -35,6 +35,18 @@ export function fetchCharacters() {
   return request.get<ApiResponse<CharacterItem[]>>('/characters')
 }
 
+/** 多条件分页搜索角色 */
+export function searchCharacters(params: {
+  name?: string
+  element?: string
+  weaponType?: string
+  rarity?: number
+  pageNum?: number
+  pageSize?: number
+}) {
+  return request.get('/characters/search', { params })
+}
+
 /** 获取角色详情 */
 export function fetchCharacterDetail(id: number | string) {
   return request.get<ApiResponse<CharacterItem>>(`/characters/${id}`)

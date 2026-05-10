@@ -7,12 +7,25 @@
         字段名使用下划线命名，MyBatis 驼峰映射自动转换。
     -->
 
-    <!-- 登录校验：根据用户名和密码查询 -->
+    <!-- 登录校验：根据用户名和密码查询（兼容明文密码旧数据） -->
     <select id="login" resultType="User">
         SELECT id, username, password, nickname, role, create_time
         FROM "USER"
         WHERE username = #{username} AND password = #{password}
     </select>
+
+    <!-- 根据用户名查询用户（用于 BCrypt 密码校验） -->
+    <select id="findByUsername" resultType="User">
+        SELECT id, username, password, nickname, role, create_time
+        FROM "USER"
+        WHERE username = #{username}
+    </select>
+
+    <!-- 注册新用户 -->
+    <insert id="insertUser">
+        INSERT INTO "USER" (username, password, nickname, role)
+        VALUES (#{username}, #{password}, #{nickname}, #{role})
+    </insert>
 
     <!-- 获取所有用户列表（管理员用，不返回密码） -->
     <select id="getAllUsers" resultType="User">

@@ -19,6 +19,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'echoes', name: 'Echoes', component: () => import('@/views/Echoes.vue') },
       { path: 'echo/:id', name: 'EchoDetail', component: () => import('@/views/EchoDetail.vue') },
       { path: 'strategies', name: 'Strategies', component: () => import('@/views/Strategies.vue') },
+      { path: 'strategy/publish', name: 'StrategyPublish', component: () => import('@/views/StrategyPublish.vue'), meta: { requiresAuth: true } },
       { path: 'strategy/:id', name: 'StrategyDetail', component: () => import('@/views/StrategyDetail.vue') },
     ],
   },
@@ -41,26 +42,38 @@ const router = createRouter({
   routes,
 })
 
-// 路由守卫：管理后台权限拦截
+// 路由守卫：鉴权拦截
 router.beforeEach((to, _from, next) => {
-  if (to.matched.some(record => record.meta.requiresAdmin)) {
-    const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null')
-    const token = localStorage.getItem('token')
+  const token = localStorage.getItem('token')
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null')
 
+  // 需要登录的页面（meta.requiresAuth）
+  if (to.matched.some(record => record.meta.requiresAuth)) {
     if (!token) {
-      next({ name: 'Login' })
-    } else if (!userInfo || userInfo.role !== 1) {
-      // 非管理员，重定向到首页
+      import('element-plus').then(({ ElMessage }) => {
+        ElMessage.warning('请先登录')
+      })
+      next({ name: 'Login', query: { redirect: to.fullPath } })
+      return
+    }
+  }
+
+  // 需要管理员权限的页面（meta.requiresAdmin）
+  if (to.matched.some(record => record.meta.requiresAdmin)) {
+    if (!token) {
+      next({ name: 'Login', query: { redirect: to.fullPath } })
+      return
+    }
+    if (!userInfo || userInfo.role !== 1) {
       import('element-plus').then(({ ElMessage }) => {
         ElMessage.warning('权限不足，仅管理员可访问后台')
       })
       next({ name: 'Home' })
-    } else {
-      next()
+      return
     }
-  } else {
-    next()
   }
+
+  next()
 })
 
 export default router
