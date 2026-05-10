@@ -48,3 +48,19 @@ spring.redis:
       max-active: 8
       max-idle: 8
       min-idle: 0
+
+# 日志配置
+logging:
+  level:
+    com.wiki: info
+    com.wiki.aspect: info
+    com.wiki.exception: warn
+  file:
+    name: logs/kurowiki.log
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 30
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
